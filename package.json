@@ -1,0 +1,22 @@
+{
+  "name": "dominion-helper",
+  "version": "1.0.0",
+  "author": "Sam Cohen",
+  "description": "Helps you crush the dominion game",
+  "main": "background.js",
+  "scripts": {
+    "start": "nodemon ./background.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samcohen9617/DomChromeExtension.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samcohen9617/DomChromeExtension/issues"
+  },
+  "homepage": "https://github.com/samcohen9617/DomChromeExtension#readme",
+  "dependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
