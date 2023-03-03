@@ -1,6 +1,4 @@
-
-
-function waitForElm(selector) {
+export const waitForElm = (selector) => {
   return new Promise((resolve) => {
     if (document.querySelector(selector)) {
       return resolve(document.querySelector(selector));
@@ -18,21 +16,21 @@ function waitForElm(selector) {
       subtree: true,
     });
   });
-}
-waitForElm(".game-log").then((elm) => {
+};
+
+export const watchElm = (selector, callback) => {
   // select the target node
-  var target = document.querySelector(".log-scroll-container");
-  console.log('found');
+  var target = document.querySelector(selector);
   // create an observer instance
   var observer = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
-      console.log(mutation.type);
+      callback(mutation);
     });
   });
 
   // configuration of the observer:
-  var config = { childList: true};
+  var config = { childList: true };
 
   // pass in the target node, as well as the observer options
   observer.observe(target, config);
-});
+};

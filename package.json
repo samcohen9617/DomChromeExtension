@@ -5,7 +5,8 @@
   "description": "Helps you crush the dominion game",
   "main": "background.js",
   "scripts": {
-    "start": "nodemon ./background.js"
+    "start": "nodemon ./background.js",
+    "format": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\""
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/samcohen9617/DomChromeExtension#readme",
   "dependencies": {
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.4"
   }
 }
