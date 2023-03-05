@@ -14,8 +14,8 @@
   "web_accessible_resources": [
     {
       "matches": ["<all_urls>"],
-      "resources": ["src/js/main.js", "src/*"]
+      "resources": ["src/js/main.js", "src/*", "node_modules/*"]
     }
   ],
-  "permissions": ["activeTab", "scripting"]
+  "permissions": ["activeTab", "scripting", "storage"]
 }

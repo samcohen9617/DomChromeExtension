@@ -34,3 +34,8 @@ export const watchElm = (selector, callback) => {
   // pass in the target node, as well as the observer options
   observer.observe(target, config);
 };
+
+export const querySelectorAllToArray = (parent, className) => {
+  return Array.from(parent.querySelectorAll(className));
+}
+
