@@ -37,5 +37,4 @@ export const watchElm = (selector, callback) => {
 
 export const querySelectorAllToArray = (parent, className) => {
   return Array.from(parent.querySelectorAll(className));
-}
-
+};
