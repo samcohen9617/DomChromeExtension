@@ -2,7 +2,6 @@ import {
   CARDS_IN_SUPPLY,
   KINGDOM_VIEWER,
   KINGDOM_VIEWER_HEADER_CONTAINER,
-  KINGDOM_VIEWER_CARD_CONTAINER,
 } from "./types.js";
 
 import { querySelectorAllToArray } from "./domFunctions.js";
