@@ -1,32 +1,27 @@
-import React, { useEffect } from 'react';
-import { waitForElm, watchElm } from '../utils/domFunctions.js';
-import { getAllCards } from '../utils/apiUtils.js';
-import { getKingdom } from '../utils/dominionFunctions.js';
+import React, { useEffect, useState } from 'react';
+import { waitForElm, checkIfElmRemoved } from '../utils/domFunctions.js';
+import { setupDominionWorld } from '../utils/dominionFunctions.js';
 
 const DomChromeExtension = () => {
-    const run = () => {
-        getKingdom().then((kingdom) => {
-            console.log('====>', kingdom);
-            watchElm('.log-scroll-container', (w) => {
-                if (w.addedNodes[0].childNodes.length > 0) {
-                    console.log('====>', w.addedNodes[0]);
-                }
-            });
-        });
-    };
-
+    const [waitingForGame, setWaitingForGame] = useState(true);
     const init = () => {
-        getAllCards().then((cards) => {
-            console.log('====>', cards);
-        });
-        waitForElm('.game-area').then(() => {
-            run();
+        waitForElm('.game-page').then(() => {
+            setWaitingForGame(false);
+            checkIfElmRemoved(
+                '[ng-if="!pageDisplay.shouldKillGame"]',
+                'game-page'
+            ).then(() => {
+                setWaitingForGame(true);
+            });
+            setupDominionWorld();
         });
     };
 
     useEffect(() => {
-        init();
-    }, []);
+        if (waitingForGame) {
+            init();
+        }
+    }, [waitingForGame]);
 
     return (
         <div>
