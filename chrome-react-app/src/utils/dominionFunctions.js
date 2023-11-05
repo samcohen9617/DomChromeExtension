@@ -26,14 +26,12 @@ const getCardsInSupply = (kingdomViewer) => {
     });
 
     if (!cardsInSupplySection) return [];
-    console.log('====> cardsInSupplySection', cardsInSupplySection);
 
     const cardInSupplyElements = querySelectorAllToArray(
         cardsInSupplySection,
         'anonymous-card'
     );
     const cardsInSupply = cardInSupplyElements.map((card) => readCard(card));
-    console.log('====>', cardsInSupply);
 };
 
 export const setupDominionWorld = () => {
@@ -43,7 +41,6 @@ export const setupDominionWorld = () => {
             parseLogLine(logLine);
         });
         watchElm('.log-scroll-container', (w) => {
-            console.log('====> w', w);
             parseLogLine(w.addedNodes[0]);
         });
     });

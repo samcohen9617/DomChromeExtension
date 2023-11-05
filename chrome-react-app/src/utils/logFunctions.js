@@ -13,7 +13,6 @@ const getUser = (logLine) => {
 const getSubjectBlocks = (logLine) => {
     const subjectBlocks = [];
     let index = 3;
-    console.log('====> parsing subject', logLine);
     while (logLine[index].innerText !== '.') {
         if (logLine[index].innerText.includes('.')) {
             if (logLine[index].innerText) {
@@ -49,22 +48,13 @@ export const parseLogLine = (logLine) => {
         'log-line-block'
     );
     if (checkIfShuffle(logLineBlocks)) {
-        console.log(
-            '====> user and action',
-            getUser(logLineBlocks),
-            'shuffles'
-        );
-        return {};
+        return { user: getUser(logLineBlocks), action: 'shuffles' };
     }
-    console.log('====> did not shuffle', logLineBlocks);
     if (logLineBlocks.length < 3) return null;
 
-    console.log(
-        '====> user and action',
-        getUser(logLineBlocks),
-        getAction(logLineBlocks),
-        getSubjectBlocks(logLineBlocks)
-    );
-
-    return {};
+    return {
+        user: getUser(logLineBlocks),
+        action: getAction(logLineBlocks),
+        subject: getSubjectBlocks(logLineBlocks),
+    };
 };

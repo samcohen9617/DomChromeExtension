@@ -44,7 +44,6 @@ export const checkIfElmRemoved = (selector, removedClassName) => {
                 }
             });
             if (wasRemoved) {
-                console.log('====> wasRemoved', removedClassName);
                 resolve();
             }
         });
