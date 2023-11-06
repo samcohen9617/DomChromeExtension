@@ -13,7 +13,8 @@ const getUser = (logLine) => {
 const getSubjectBlocks = (logLine) => {
     const subjectBlocks = [];
     let index = 3;
-    while (logLine[index].innerText !== '.') {
+    
+    while (index < logLine.length) {
         if (logLine[index].innerText.includes('.')) {
             if (logLine[index].innerText) {
                 subjectBlocks.push(logLine[index].innerText.split('.')[0]);
@@ -34,27 +35,41 @@ const checkIfShuffle = (logLineBlocks) => {
         }
     });
 };
-export const parseLogLine = (logLine) => {
-    if (
-        !querySelectorByClassAndNotOtherClass(
-            logLine,
-            'log-line',
-            'new-turn-line'
-        )
-    )
-        return null;
-    const logLineBlocks = querySelectorAllToArrayByClass(
-        logLine,
-        'log-line-block'
-    );
-    if (checkIfShuffle(logLineBlocks)) {
-        return { user: getUser(logLineBlocks), action: 'shuffles' };
-    }
-    if (logLineBlocks.length < 3) return null;
 
-    return {
-        user: getUser(logLineBlocks),
-        action: getAction(logLineBlocks),
-        subject: getSubjectBlocks(logLineBlocks),
-    };
+const formatSubject = (subject) => {
+    const subjectArray = subject.split(/(?:, and|,)/);
+    return subjectArray.map((subject) => {
+        return subject.trim();
+    })
+}
+
+export const parseLogLine = (logLine) => {
+    try {
+        if (
+            !querySelectorByClassAndNotOtherClass(
+                logLine,
+                'log-line',
+                'new-turn-line'
+            )
+        )
+            return null;
+        const logLineBlocks = querySelectorAllToArrayByClass(
+            logLine,
+            'log-line-block'
+        );
+        if (checkIfShuffle(logLineBlocks)) {
+            return { user: getUser(logLineBlocks), action: 'shuffles' };
+        }
+        if (logLineBlocks.length < 3) return null;
+        const logLineObject = {
+            user: getUser(logLineBlocks),
+            action: getAction(logLineBlocks),
+            subject: formatSubject(getSubjectBlocks(logLineBlocks)),
+        };
+        
+
+        return logLineObject;
+    } catch (error) {
+        console.log('====> error', logLine);
+    }
 };

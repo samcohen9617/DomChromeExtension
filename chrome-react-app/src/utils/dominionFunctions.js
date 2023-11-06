@@ -34,27 +34,89 @@ const getCardsInSupply = (kingdomViewer) => {
     const cardsInSupply = cardInSupplyElements.map((card) => readCard(card));
 };
 
+const updateDeck = (parsedLogLine, players) => {
+    const { user, action, subject } = parsedLogLine;
+    if (action === ' starts with ') {
+        subject.forEach((item) => {
+            const countCardPair = item.split(' ');
+            if (countCardPair[0] === 'a') {
+                countCardPair[0] = 1;
+            } else {
+                countCardPair[1] =
+                    countCardPair[1][-1] == 's'
+                        ? countCardPair[1].slice(0, -1)
+                        : countCardPair[1];
+            }
+            players[user].deck[countCardPair[1]] = Number(countCardPair[0]);
+            players[user].discard[countCardPair[1]] = Number(countCardPair[0]);
+        });
+    } else if (action === 'shuffles') {
+        players[user].deck = { ...players[user].discard };
+    } else if (action === ' plays ') {
+        subject.forEach((item) => {
+            const countCardPair = item.split(' ');
+            console.log('====> countCardPair', countCardPair);
+            if (countCardPair[0] === 'a') {
+                countCardPair[0] = 1;
+            } else {
+                countCardPair[1] =
+                    countCardPair[1][-1] == 's'
+                        ? countCardPair[1].slice(0, -1)
+                        : countCardPair[1];
+            }
+
+            console.log('====> countCardPair', countCardPair);
+            players[user].inPlay[countCardPair[1]] = Number(countCardPair[0]);
+            players[user].drawPile[countCardPair[1]] -= Number(
+                countCardPair[0]
+            );
+        });
+    }
+    console.log('====> players deck', players[user]);
+};
+
 export const setupDominionWorld = () => {
     getPlayers().then((players) => {
         console.log('====> players', players);
-        getAllChildren('.log-scroll-container').forEach((logLine) => {
-            parseLogLine(logLine);
+        const actionSet = new Set();
+
+        getAllChildren('.log-scroll-container').map((logLine) => {
+            const parsedLogLine = parseLogLine(logLine);
+            if (parsedLogLine) {
+                actionSet.add(parsedLogLine.action);
+                updateDeck(parsedLogLine, players);
+                return parsedLogLine;
+            }
+            return null;
         });
+
         watchElm('.log-scroll-container', (w) => {
-            parseLogLine(w.addedNodes[0]);
+            const parsedLogLine = parseLogLine(w.addedNodes[0]);
+            if (parsedLogLine) {
+                updateDeck(parsedLogLine, players);
+                actionSet.add(parsedLogLine.action);
+            }
         });
     });
 };
 
 const getPlayers = () => {
+    const players = {};
     return new Promise((resolve) => {
-        const players = querySelectorAllToArray(
+        const playerNames = querySelectorAllToArray(
             document,
             'player-info-name'
         ).map((player) => {
-            return {
+            players[player.innerText[0]] = {
                 playerName: player.innerText,
+                deck: {},
+                drawPile: {},
+                discard: {},
+                inPlay: {},
+                hand: {},
+                elsewhere: {},
             };
+            return player.innerText;
         });
         resolve(players);
     });
