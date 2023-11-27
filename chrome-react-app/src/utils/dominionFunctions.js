@@ -9,6 +9,8 @@ import {
     watchElm,
     querySelectorByClass,
     getAllChildren,
+    checkIfElmRemovedWithoutSelector,
+    getLastChildrenUntilFirstNodeWithClass,
 } from './domFunctions.js';
 
 import { parseLogLine } from './logFunctions.js';
@@ -17,24 +19,8 @@ const readCard = (card) => {
     return querySelectorByClass(card, 'name-layer').innerText;
 };
 
-const getCardsInSupply = (kingdomViewer) => {
-    const cardsInSupplySection = [...kingdomViewer.children].find((section) => {
-        return (
-            section.querySelector(`.${KINGDOM_VIEWER_HEADER_CONTAINER}`)
-                .children[0].innerText === CARDS_IN_SUPPLY
-        );
-    });
 
-    if (!cardsInSupplySection) return [];
-
-    const cardInSupplyElements = querySelectorAllToArray(
-        cardsInSupplySection,
-        'anonymous-card'
-    );
-    const cardsInSupply = cardInSupplyElements.map((card) => readCard(card));
-};
-
-const updateDeck = (parsedLogLine, players) => {
+const updateDeck = (parsedLogLine, tempDeck) => {
     const { user, action, subject } = parsedLogLine;
     if (action === ' starts with ') {
         subject.forEach((item) => {
@@ -47,15 +33,14 @@ const updateDeck = (parsedLogLine, players) => {
                         ? countCardPair[1].slice(0, -1)
                         : countCardPair[1];
             }
-            players[user].deck[countCardPair[1]] = Number(countCardPair[0]);
-            players[user].discard[countCardPair[1]] = Number(countCardPair[0]);
+            tempDeck[user].deck[countCardPair[1]] = Number(countCardPair[0]);
+            tempDeck[user].discard[countCardPair[1]] = Number(countCardPair[0]);
         });
     } else if (action === 'shuffles') {
-        players[user].deck = { ...players[user].discard };
+        tempDeck[user].deck = { ...tempDeck[user].discard };
     } else if (action === ' plays ') {
         subject.forEach((item) => {
             const countCardPair = item.split(' ');
-            console.log('====> countCardPair', countCardPair);
             if (countCardPair[0] === 'a') {
                 countCardPair[0] = 1;
             } else {
@@ -65,38 +50,73 @@ const updateDeck = (parsedLogLine, players) => {
                         : countCardPair[1];
             }
 
-            console.log('====> countCardPair', countCardPair);
-            players[user].inPlay[countCardPair[1]] = Number(countCardPair[0]);
-            players[user].drawPile[countCardPair[1]] -= Number(
+            tempDeck[user].inPlay[countCardPair[1]] = Number(countCardPair[0]);
+            tempDeck[user].drawPile[countCardPair[1]] -= Number(
                 countCardPair[0]
             );
         });
     }
-    console.log('====> players deck', players[user]);
+    return tempDeck;
 };
 
 export const setupDominionWorld = () => {
     getPlayers().then((players) => {
-        console.log('====> players', players);
-        const actionSet = new Set();
-
+        let tempDeck = players;
         getAllChildren('.log-scroll-container').map((logLine) => {
             const parsedLogLine = parseLogLine(logLine);
             if (parsedLogLine) {
-                actionSet.add(parsedLogLine.action);
-                updateDeck(parsedLogLine, players);
+                tempDeck = updateDeck(parsedLogLine, tempDeck);
                 return parsedLogLine;
             }
             return null;
         });
+        let currentTurn = null;
+        players = tempDeck;
 
-        watchElm('.log-scroll-container', (w) => {
-            const parsedLogLine = parseLogLine(w.addedNodes[0]);
-            if (parsedLogLine) {
-                updateDeck(parsedLogLine, players);
-                actionSet.add(parsedLogLine.action);
+        tempDeck = null;
+        watchElm(
+            document
+                .querySelector('.log-container')
+                .querySelector('.log-scroll-container'),
+            (evt) => {
+                const currentTurnLogs = getLastChildrenUntilFirstNodeWithClass(
+                    document
+                        .querySelector('.log-container')
+                        .querySelector('.log-scroll-container'),
+                    'new-turn-line'
+                );
+                if (currentTurnLogs.length > 0) {
+                    if (
+                        currentTurnLogs[currentTurnLogs.length - 1]
+                            .innerText !== currentTurn
+                    ) {
+                        console.log(
+                            '====> new turn',
+                            currentTurnLogs[currentTurnLogs.length - 1]
+                                .innerText
+                        );
+
+                        tempDeck = players;
+                    }
+
+                    currentTurnLogs.forEach((logLine) => {
+                        const parsedLogLine = parseLogLine(logLine);
+                        if (parsedLogLine) {
+                            tempDeck = updateDeck(parsedLogLine, tempDeck);
+                            console.log('====> temp deck', tempDeck);
+                        }
+                    });
+                    currentTurn =
+                        currentTurnLogs[currentTurnLogs.length - 1].innerText;
+                }
+
+                const parsedLogLine = parseLogLine(evt.addedNodes[0]);
+
+                if (parsedLogLine) {
+                    updateDeck(parsedLogLine, players);
+                }
             }
-        });
+        );
     });
 };
 

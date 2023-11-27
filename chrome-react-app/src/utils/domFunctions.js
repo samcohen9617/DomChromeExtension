@@ -18,13 +18,11 @@ export const waitForElm = (selector) => {
     });
 };
 
-export const watchElm = (selector, callback) => {
-    // select the target node
-    var target = document.querySelector(selector);
+export const watchElm = (target, callback) => {
     // create an observer instance
     var observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
-            callback(mutation);
+            callback(mutation, observer);
         });
     });
 
@@ -49,6 +47,25 @@ export const checkIfElmRemoved = (selector, removedClassName) => {
         });
 
         x.observe(document.querySelector(selector), { childList: true });
+    });
+};
+
+export const checkIfElmRemovedWithoutSelector = (element, removedClassName) => {
+    return new Promise((resolve) => {
+        var x = new MutationObserver(function (mutation) {
+            const wasRemoved = mutation.find((m) => {
+                if (m.removedNodes.length > 0) {
+                    return m.removedNodes[0].className.includes(
+                        removedClassName
+                    );
+                }
+            });
+            if (wasRemoved) {
+                resolve();
+            }
+        });
+
+        x.observe(element, { childList: true });
     });
 };
 
@@ -87,4 +104,19 @@ export const getAllChildrenUntilNode = (parentSelector, node) => {
 export const getAllChildren = (parentSelector) => {
     const parent = document.querySelector(parentSelector);
     return Array.from(parent.childNodes);
-}
+};
+
+export const getLastChildrenUntilFirstNodeWithClass = (
+    parent,
+    selectorClass
+) => {
+    let children = [];
+
+    let child = parent.lastChild;
+    while (child && child != parent.childNodes[0]) {
+        children.push(child);
+        if (querySelectorByClass(child, selectorClass)) break;
+        child = child.previousSibling;
+    }
+    return children;
+};

@@ -1,6 +1,7 @@
 import {
     querySelectorAllToArrayByClass,
     querySelectorByClassAndNotOtherClass,
+    querySelectorByClass,
 } from './domFunctions';
 
 const getAction = (logLine) => {
@@ -13,7 +14,7 @@ const getUser = (logLine) => {
 const getSubjectBlocks = (logLine) => {
     const subjectBlocks = [];
     let index = 3;
-    
+
     while (index < logLine.length) {
         if (logLine[index].innerText.includes('.')) {
             if (logLine[index].innerText) {
@@ -40,8 +41,8 @@ const formatSubject = (subject) => {
     const subjectArray = subject.split(/(?:, and|,)/);
     return subjectArray.map((subject) => {
         return subject.trim();
-    })
-}
+    });
+};
 
 export const parseLogLine = (logLine) => {
     try {
@@ -51,8 +52,10 @@ export const parseLogLine = (logLine) => {
                 'log-line',
                 'new-turn-line'
             )
-        )
+        ) {
+            
             return null;
+        }
         const logLineBlocks = querySelectorAllToArrayByClass(
             logLine,
             'log-line-block'
@@ -66,7 +69,6 @@ export const parseLogLine = (logLine) => {
             action: getAction(logLineBlocks),
             subject: formatSubject(getSubjectBlocks(logLineBlocks)),
         };
-        
 
         return logLineObject;
     } catch (error) {
