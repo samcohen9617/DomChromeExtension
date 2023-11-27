@@ -1,60 +1,29 @@
-import {
-    CARDS_IN_SUPPLY,
-    KINGDOM_VIEWER,
-    KINGDOM_VIEWER_HEADER_CONTAINER,
-} from './types.js';
+import { startsWithAction, playsAction } from './actionFunctions.js';
 
 import {
     querySelectorAllToArray,
     watchElm,
-    querySelectorByClass,
     getAllChildren,
-    checkIfElmRemovedWithoutSelector,
     getLastChildrenUntilFirstNodeWithClass,
 } from './domFunctions.js';
 
 import { parseLogLine } from './logFunctions.js';
 
-const readCard = (card) => {
-    return querySelectorByClass(card, 'name-layer').innerText;
-};
-
-
 const updateDeck = (parsedLogLine, tempDeck) => {
     const { user, action, subject } = parsedLogLine;
-    if (action === ' starts with ') {
-        subject.forEach((item) => {
-            const countCardPair = item.split(' ');
-            if (countCardPair[0] === 'a') {
-                countCardPair[0] = 1;
-            } else {
-                countCardPair[1] =
-                    countCardPair[1][-1] == 's'
-                        ? countCardPair[1].slice(0, -1)
-                        : countCardPair[1];
-            }
-            tempDeck[user].deck[countCardPair[1]] = Number(countCardPair[0]);
-            tempDeck[user].discard[countCardPair[1]] = Number(countCardPair[0]);
-        });
-    } else if (action === 'shuffles') {
-        tempDeck[user].deck = { ...tempDeck[user].discard };
-    } else if (action === ' plays ') {
-        subject.forEach((item) => {
-            const countCardPair = item.split(' ');
-            if (countCardPair[0] === 'a') {
-                countCardPair[0] = 1;
-            } else {
-                countCardPair[1] =
-                    countCardPair[1][-1] == 's'
-                        ? countCardPair[1].slice(0, -1)
-                        : countCardPair[1];
-            }
-
-            tempDeck[user].inPlay[countCardPair[1]] = Number(countCardPair[0]);
-            tempDeck[user].drawPile[countCardPair[1]] -= Number(
-                countCardPair[0]
-            );
-        });
+    switch (action) {
+        case ' starts with ':
+            tempDeck = startsWithAction(subject, user, tempDeck);
+            break;
+        case 'shuffles':
+            tempDeck[user].deck = { ...tempDeck[user].discard };
+            // tempDeck[user].discard = {};
+            break;
+        case ' plays ':
+            tempDeck = playsAction(subject, user, tempDeck);
+            break;
+        default:
+            break;
     }
     return tempDeck;
 };
