@@ -1,7 +1,6 @@
 import {
     querySelectorAllToArrayByClass,
     querySelectorByClassAndNotOtherClass,
-    querySelectorByClass,
 } from './domFunctions';
 
 const getAction = (logLine) => {
@@ -34,11 +33,11 @@ const checkIfShuffle = (logLineBlocks) => {
         if (block.innerText.includes('shuffles')) {
             return true;
         }
-    });
+    }); 
 };
 
 const formatSubject = (subject) => {
-    const subjectArray = subject.split(/(?:, and|,)/);
+    const subjectArray = subject.split(/(?:, and|,|and)/);
     return subjectArray.map((subject) => {
         return subject.trim();
     });
@@ -53,7 +52,6 @@ export const parseLogLine = (logLine) => {
                 'new-turn-line'
             )
         ) {
-            
             return null;
         }
         const logLineBlocks = querySelectorAllToArrayByClass(

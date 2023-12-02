@@ -1,4 +1,21 @@
+const getNumberOfCards = (subject) => {
+    const rawCount = subject.split(' ')[0];
+    if (/^[0-9]*$/.test(rawCount)) {
+        return Number(rawCount);
+    }
+    return 1;
+};
 
+const parseSubject = (subject) => {
+    const subjectDict = {};
+    subject.forEach((subjectItem) => {
+        const count = getNumberOfCards(subjectItem);
+        // subject item from index 1 to end
+        const card = subjectItem.split(' ').slice(1).join(' ');
+        subjectDict[card] = count;
+    });
+    return subjectDict;
+};
 
 export const startsWithAction = (subject, user, tempDeck) => {
     subject.forEach((item) => {
@@ -18,6 +35,7 @@ export const startsWithAction = (subject, user, tempDeck) => {
 };
 
 export const playsAction = (subject, user, tempDeck) => {
+    console.log('====> playsAction', parseSubject(subject));
     subject.forEach((item) => {
         const countCardPair = item.split(' ');
         if (countCardPair[0] === 'a') {

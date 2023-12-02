@@ -72,7 +72,6 @@ export const setupDominionWorld = () => {
                         const parsedLogLine = parseLogLine(logLine);
                         if (parsedLogLine) {
                             tempDeck = updateDeck(parsedLogLine, tempDeck);
-                            console.log('====> temp deck', tempDeck);
                         }
                     });
                     currentTurn =
